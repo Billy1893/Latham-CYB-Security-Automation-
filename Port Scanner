@@ -1,0 +1,85 @@
+import socket
+from typing import List
+
+
+def scan_port(host: str, port: int) -> bool:
+    """
+    Attempts to connect to a specified port on a host.
+
+    Args:
+        host (str): Target hostname or IP address.
+        port (int): Port number to scan.
+
+    Returns:
+        bool: True if the port is open, False otherwise.
+    """
+    try:
+        # SOCK_STREAM = TCP connection
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(0.5)  # Prevent long waits on unresponsive ports
+            result = sock.connect_ex((host, port))
+            return result == 0
+    except socket.error:
+        # Handle any OS-level socket errors
+        return False
+
+
+def scan_port_range(host: str, start_port: int, end_port: int) -> List[int]:
+    """
+    Scans a range of ports on a host.
+
+    Args:
+        host (str): Target hostname or IP address.
+        start_port (int): Starting port number.
+        end_port (int): Ending port number.
+
+    Returns:
+        List[int]: List of open ports.
+    """
+    open_ports = []
+
+    print(f"Scanning {host} from port {start_port} to {end_port}...")
+
+    for port in range(start_port, end_port + 1):
+        try:
+            if scan_port(host, port):
+                print(f"[OPEN] Port {port}")
+                open_ports.append(port)
+        except Exception as e:
+            # Generic error fallback
+            print(f"Error scanning port {port}: {e}")
+
+    return open_ports
+
+
+def main():
+    """
+    Main program entry point.
+    Handles user input and runs the port scanner.
+    """
+    try:
+        host = input("Enter target host (IP or domain): ").strip()
+        start_port = int(input("Enter start port: "))
+        end_port = int(input("Enter end port: "))
+
+        if start_port < 0 or end_port > 65535 or start_port > end_port:
+            raise ValueError("Invalid port range. Ports must be 0–65535 and start <= end.")
+
+        open_ports = scan_port_range(host, start_port, end_port)
+
+        print("\n--- Scan Complete ---")
+        if open_ports:
+            print("Open ports:", open_ports)
+        else:
+            print("No open ports found.")
+
+    except ValueError as ve:
+        print(f"Input error: {ve}")
+    except KeyboardInterrupt:
+        print("\nScan canceled by user.")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+
+if __name__ == "__main__":
+    main()
