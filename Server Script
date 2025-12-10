@@ -1,0 +1,48 @@
+import socket
+
+def start_server():
+    host = "127.0.0.1"   # Localhost
+    port = 5000          # Any free port
+
+    # Create TCP/IP socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        # Bind socket to address and port
+        server_socket.bind((host, port))
+
+        # Listen for incoming connections
+        server_socket.listen(1)
+        print(f"[SERVER] Listening on {host}:{port} ...")
+
+        # Accept client connection
+        conn, addr = server_socket.accept()
+        print(f"[SERVER] Connected by {addr}")
+
+        while True:
+            # Receive data from client
+            data = conn.recv(1024)
+            if not data:
+                print("[SERVER] Client disconnected.")
+                break
+
+            message = data.decode()
+            print(f"[SERVER] Received: {message}")
+
+            # Send response back to client
+            response = f"Server received: {message}"
+            conn.send(response.encode())
+
+    except Exception as e:
+        print(f"[SERVER ERROR] {e}")
+
+    finally:
+        # Always close socket
+        conn.close()
+        server_socket.close()
+        print("[SERVER] Shutdown complete.")
+
+if __name__ == "__main__":
+    start_server()
+    
+    
