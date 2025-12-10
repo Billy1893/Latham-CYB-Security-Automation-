@@ -1,4 +1,4 @@
-##Client import socket code 
+
 import socket
 
 def start_client():
