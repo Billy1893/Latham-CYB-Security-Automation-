@@ -1,0 +1,34 @@
+##Client import socket code 
+import socket
+
+def start_client():
+    host = "127.0.0.1"     # Must match server address
+    port = 5000            # Must match server port
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        print("[CLIENT] Attempting connection...")
+        client_socket.connect((host, port))
+        print("[CLIENT] Connected to server.")
+
+        # Send message to server
+        message = input("Enter message to send: ")
+        client_socket.send(message.encode())
+
+        # Receive server reply
+        response = client_socket.recv(1024).decode()
+        print(f"[CLIENT] Server replied: {response}")
+
+    except ConnectionRefusedError:
+        print("[CLIENT ERROR] Cannot connect — server is not running.")
+
+    except Exception as e:
+        print(f"[CLIENT ERROR] {e}")
+
+    finally:
+        client_socket.close()
+        print("[CLIENT] Disconnected from server.")
+
+if __name__ == "__main__":
+    start_client()
